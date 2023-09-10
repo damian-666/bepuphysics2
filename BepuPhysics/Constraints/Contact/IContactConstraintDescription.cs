@@ -1,8 +1,5 @@
 ﻿using BepuPhysics.CollisionDetection;
-using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace BepuPhysics.Constraints.Contact
 {
@@ -15,13 +12,13 @@ namespace BepuPhysics.Constraints.Contact
         where TDescription : unmanaged, IConvexOneBodyContactConstraintDescription<TDescription>
     {
         void CopyManifoldWideProperties(ref Vector3 normal, ref PairMaterialProperties material);
-        ref ConstraintContactData GetFirstContact(ref TDescription description);
+        static abstract ref ConstraintContactData GetFirstContact(ref TDescription description);
     }
     public interface IConvexTwoBodyContactConstraintDescription<TDescription> : ITwoBodyConstraintDescription<TDescription> 
         where TDescription : unmanaged, IConvexTwoBodyContactConstraintDescription<TDescription>
     {
         void CopyManifoldWideProperties(ref Vector3 offsetB, ref Vector3 normal, ref PairMaterialProperties material);
-        ref ConstraintContactData GetFirstContact(ref TDescription description);
+        static abstract ref ConstraintContactData GetFirstContact(ref TDescription description);
     }
 
     public struct NonconvexConstraintContactData
@@ -49,19 +46,19 @@ namespace BepuPhysics.Constraints.Contact
         where TDescription : unmanaged, INonconvexOneBodyContactConstraintDescription<TDescription>
     {
         void CopyManifoldWideProperties(ref PairMaterialProperties material);
-        int ContactCount { get; }
+        static abstract int ContactCount { get; }
 
-        ref NonconvexOneBodyManifoldConstraintProperties GetCommonProperties(ref TDescription description);
-        ref NonconvexConstraintContactData GetFirstContact(ref TDescription description);
+        static abstract ref NonconvexOneBodyManifoldConstraintProperties GetCommonProperties(ref TDescription description);
+        static abstract ref NonconvexConstraintContactData GetFirstContact(ref TDescription description);
     }
     public interface INonconvexTwoBodyContactConstraintDescription<TDescription> : ITwoBodyConstraintDescription<TDescription> 
         where TDescription : unmanaged, INonconvexTwoBodyContactConstraintDescription<TDescription>
     {
         void CopyManifoldWideProperties(ref Vector3 offsetB, ref PairMaterialProperties material);
-        int ContactCount { get; }
+        static abstract int ContactCount { get; }
 
-        ref NonconvexTwoBodyManifoldConstraintProperties GetCommonProperties(ref TDescription description);
-        ref NonconvexConstraintContactData GetFirstContact(ref TDescription description);
+        static abstract ref NonconvexTwoBodyManifoldConstraintProperties GetCommonProperties(ref TDescription description);
+        static abstract ref NonconvexConstraintContactData GetFirstContact(ref TDescription description);
     }
 
 }

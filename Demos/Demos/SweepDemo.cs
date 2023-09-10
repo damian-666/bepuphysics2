@@ -27,7 +27,7 @@ namespace Demos.Demos
 
         ConvexHull hull;
 
-        public unsafe override void Initialize(ContentArchive content, Camera camera)
+        public override void Initialize(ContentArchive content, Camera camera)
         {
             camera.Position = new Vector3(0, 10, 40);
             camera.Yaw = 0;
@@ -132,7 +132,7 @@ namespace Demos.Demos
             }
         }
 
-        unsafe void DrawSweep<TShape>(TShape shape, in RigidPose pose, in BodyVelocity velocity, int steps,
+        void DrawSweep<TShape>(TShape shape, in RigidPose pose, in BodyVelocity velocity, int steps,
             float t, Renderer renderer, Vector3 color)
             where TShape : struct, IShape
         {
@@ -154,7 +154,7 @@ namespace Demos.Demos
             }
         }
 
-        unsafe void DrawImpact(Renderer renderer, ref Vector3 hitLocation, ref Vector3 hitNormal)
+        void DrawImpact(Renderer renderer, ref Vector3 hitLocation, ref Vector3 hitNormal)
         {
             //The normal itself will tend to be obscured by the shapes, so instead draw two lines representing the plane.
             DemoRenderer.Constraints.ContactLines.BuildOrthonormalBasis(hitNormal, out var tangent1, out var tangent2);
@@ -170,12 +170,12 @@ namespace Demos.Demos
         {
             var filter = new Filter();
 
-            var task = Simulation.NarrowPhase.SweepTaskRegistry.GetTask(a.TypeId, b.TypeId);
+            var task = Simulation.NarrowPhase.SweepTaskRegistry.GetTask(TShapeA.TypeId, TShapeB.TypeId);
             if (task == null)
                 return;
             var intersected = task.Sweep(
-                Unsafe.AsPointer(ref a), a.TypeId, poseA.Orientation, velocityA,
-                Unsafe.AsPointer(ref b), b.TypeId, poseB.Position - poseA.Position, poseB.Orientation, velocityB,
+                Unsafe.AsPointer(ref a), TShapeA.TypeId, poseA.Orientation, velocityA,
+                Unsafe.AsPointer(ref b), TShapeB.TypeId, poseB.Position - poseA.Position, poseB.Orientation, velocityB,
                 maximumT, 1e-2f, 1e-5f, 25, ref filter, Simulation.Shapes, Simulation.NarrowPhase.SweepTaskRegistry, BufferPool,
                 out var t0, out var t1, out var hitLocation, out var hitNormal);
             hitLocation += poseA.Position;

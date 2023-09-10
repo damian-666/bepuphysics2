@@ -1,9 +1,5 @@
-﻿using BepuUtilities;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace BepuUtilities
 {
@@ -93,7 +89,7 @@ namespace BepuUtilities
         /// <param name="m">Matrix to be inverted.</param>
         /// <returns>Inverted matrix.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe static Symmetric3x3 Invert(Symmetric3x3 m)
+        public static Symmetric3x3 Invert(Symmetric3x3 m)
         {
             Invert(m, out var inverse);
             return inverse;
@@ -105,7 +101,7 @@ namespace BepuUtilities
         /// <param name="m">Matrix to be inverted.</param>
         /// <param name="inverse">Inverted matrix.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe static void Invert(in Symmetric3x3 m, out Symmetric3x3 inverse)
+        public static void Invert(in Symmetric3x3 m, out Symmetric3x3 inverse)
         {
             var m11 = m.YY * m.ZZ - m.ZY * m.ZY;
             var m21 = m.ZY * m.ZX - m.ZZ * m.YX;

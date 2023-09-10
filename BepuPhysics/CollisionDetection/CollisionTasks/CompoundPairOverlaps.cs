@@ -1,12 +1,7 @@
 ﻿using BepuUtilities;
-using BepuUtilities.Collections;
 using BepuUtilities.Memory;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace BepuPhysics.CollisionDetection.CollisionTasks
 {
@@ -20,14 +15,14 @@ namespace BepuPhysics.CollisionDetection.CollisionTasks
         ref TSubpairOverlaps GetOverlapsForPair(int subpairIndex);
     }
 
-    public unsafe struct ChildOverlapsCollection : ICollisionTaskSubpairOverlaps
+    public struct ChildOverlapsCollection : ICollisionTaskSubpairOverlaps
     {
         public Buffer<int> Overlaps;
         public int Count;
         public int ChildIndex;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe ref int Allocate(BufferPool pool)
+        public ref int Allocate(BufferPool pool)
         {
             if (Overlaps.Length == Count)
             {

@@ -4,21 +4,19 @@ using BepuUtilities.Memory;
 using BepuPhysics;
 using BepuPhysics.Constraints;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using BepuUtilities;
 using System.Numerics;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints.Contact;
-using System.Threading;
 
 namespace DemoRenderer.Constraints
 {
     unsafe interface IConstraintLineExtractor<TPrestep>
     {
-        int LinesPerConstraint { get; }
+        static abstract int LinesPerConstraint { get; }
 
-        void ExtractLines(ref TPrestep prestepBundle, int setIndex, int* bodyLocations, Bodies bodies, ref Vector3 tint, ref QuickList<LineInstance> lines);
+        static abstract void ExtractLines(ref TPrestep prestepBundle, int setIndex, int* bodyLocations, Bodies bodies, ref Vector3 tint, ref QuickList<LineInstance> lines);
     }
     abstract class TypeLineExtractor
     {
@@ -31,7 +29,7 @@ namespace DemoRenderer.Constraints
         where TPrestep : unmanaged
         where T : struct, IConstraintLineExtractor<TPrestep>
     {
-        public override int LinesPerConstraint => default(T).LinesPerConstraint;
+        public override int LinesPerConstraint => T.LinesPerConstraint;
         public unsafe override void ExtractLines(Bodies bodies, int setIndex, ref TypeBatch typeBatch, int constraintStart, int constraintCount,
             ref QuickList<LineInstance> lines)
         {
@@ -42,7 +40,6 @@ namespace DemoRenderer.Constraints
             var bodyCount = Unsafe.SizeOf<TBodyReferences>() / Unsafe.SizeOf<Vector<int>>();
             Debug.Assert(bodyCount * Unsafe.SizeOf<Vector<int>>() == Unsafe.SizeOf<TBodyReferences>());
             var bodyIndices = stackalloc int[bodyCount];
-            var extractor = default(T);
 
             var constraintEnd = constraintStart + constraintCount;
             if (setIndex == 0)
@@ -61,7 +58,7 @@ namespace DemoRenderer.Constraints
                             //Active set constraint body references refer directly to the body index.
                             bodyIndices[j] = GatherScatter.Get(ref Unsafe.Add(ref firstReference, j), innerIndex) & Bodies.BodyReferenceMask;
                         }
-                        extractor.ExtractLines(ref GatherScatter.GetOffsetInstance(ref prestepBundle, innerIndex), setIndex, bodyIndices, bodies, ref tint, ref lines);
+                        T.ExtractLines(ref GatherScatter.GetOffsetInstance(ref prestepBundle, innerIndex), setIndex, bodyIndices, bodies, ref tint, ref lines);
                     }
                 }
             }
@@ -83,7 +80,7 @@ namespace DemoRenderer.Constraints
                             Debug.Assert(bodies.HandleToLocation[bodyHandle].SetIndex == setIndex);
                             bodyIndices[j] = bodies.HandleToLocation[bodyHandle].Index & Bodies.BodyReferenceMask;
                         }
-                        extractor.ExtractLines(ref GatherScatter.GetOffsetInstance(ref prestepBundle, innerIndex), setIndex, bodyIndices, bodies, ref tint, ref lines);
+                        T.ExtractLines(ref GatherScatter.GetOffsetInstance(ref prestepBundle, innerIndex), setIndex, bodyIndices, bodies, ref tint, ref lines);
                     }
                 }
             }

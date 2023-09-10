@@ -3,11 +3,9 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using BepuPhysics.Constraints;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuUtilities;
-using static BepuUtilities.GatherScatter;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 
@@ -94,7 +92,7 @@ namespace BepuPhysics
         /// <param name="initialBodyCapacity">Initial number of bodies to allocate space for in the active set.</param>
         /// <param name="initialIslandCapacity">Initial number of islands to allocate space for in the Sets buffer.</param>
         /// <param name="initialConstraintCapacityPerBody">Expected number of constraint references per body to allocate space for.</param>
-        public unsafe Bodies(BufferPool pool, Shapes shapes, BroadPhase broadPhase,
+        public Bodies(BufferPool pool, Shapes shapes, BroadPhase broadPhase,
             int initialBodyCapacity, int initialIslandCapacity, int initialConstraintCapacityPerBody)
         {
             this.Pool = pool;
@@ -182,7 +180,7 @@ namespace BepuPhysics
         /// </summary>
         /// <param name="description">Description of the body to add.</param>
         /// <returns>Handle of the created body.</returns>
-        public unsafe BodyHandle Add(in BodyDescription description)
+        public BodyHandle Add(in BodyDescription description)
         {
             Debug.Assert(HandleToLocation.Allocated, "The backing memory of the bodies set should be initialized before use.");
             var handleIndex = HandlePool.Take();
@@ -389,7 +387,7 @@ namespace BepuPhysics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe void UpdateForKinematicStateChange(BodyHandle handle, ref BodyMemoryLocation location, ref BodySet set, bool previouslyKinematic, bool currentlyKinematic)
+        void UpdateForKinematicStateChange(BodyHandle handle, ref BodyMemoryLocation location, ref BodySet set, bool previouslyKinematic, bool currentlyKinematic)
         {
             Debug.Assert(location.SetIndex == 0, "If we're changing kinematic state, we should have already awoken the body.");
             if (previouslyKinematic != currentlyKinematic)
@@ -573,6 +571,24 @@ namespace BepuPhysics
         {
             //A negative set index marks a body handle as unused.
             return bodyHandle.Value >= 0 && bodyHandle.Value < HandleToLocation.Length && HandleToLocation[bodyHandle.Value].SetIndex >= 0;
+        }
+
+        /// <summary>
+        /// Computes the number of bodies contained in the simulation.
+        /// </summary>
+        /// <returns>Number of bodies contained in the simulation.</returns>
+        /// <remarks>Enumerates all <see cref="BodySet"/> instances in the <see cref="Bodies"/> collection, summing the body counts for every allocated instance. 
+        /// For simulations with very large numbers of sleeping body sets, this is not a trivial operation.</remarks>
+        public int CountBodies()
+        {
+            int count = 0;
+            for (int i = 0; i < Sets.Length; ++i)
+            {
+                ref var set = ref Sets[i];
+                if (set.Allocated)
+                    count += set.Count;
+            }
+            return count;
         }
 
         [Conditional("DEBUG")]

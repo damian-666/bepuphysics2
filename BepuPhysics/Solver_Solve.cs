@@ -3,17 +3,13 @@ using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using BepuPhysics.Constraints;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Runtime.Intrinsics.X86;
 using System.Numerics;
 using System.Runtime.Intrinsics;
-using static BepuPhysics.Solver;
-using BepuPhysics.CollisionDetection;
 
 namespace BepuPhysics
 {
@@ -298,7 +294,7 @@ namespace BepuPhysics
             }
         }
 
-        unsafe void ExecuteWorkerStage<TStageFunction>(ref TStageFunction stageFunction, int workerIndex, int workerStart, int availableBlocksStartIndex, ref Buffer<int> claims, int previousSyncIndex, int syncIndex, ref int completedWorkBlocks) where TStageFunction : IStageFunction
+        void ExecuteWorkerStage<TStageFunction>(ref TStageFunction stageFunction, int workerIndex, int workerStart, int availableBlocksStartIndex, ref Buffer<int> claims, int previousSyncIndex, int syncIndex, ref int completedWorkBlocks) where TStageFunction : IStageFunction
         {
             if (workerStart == -1)
             {
@@ -684,7 +680,7 @@ namespace BepuPhysics
             return default;
         }
 
-        protected unsafe void BuildWorkBlocks<TTypeBatchFilter>(
+        protected void BuildWorkBlocks<TTypeBatchFilter>(
             BufferPool pool, int minimumBlockSizeInBundles, int maximumBlockSizeInBundles, int targetBlocksPerBatch, ref TTypeBatchFilter typeBatchFilter,
             out QuickList<WorkBlock> workBlocks, out Buffer<int> batchBoundaries) where TTypeBatchFilter : ITypeBatchSolveFilter
         {
@@ -951,7 +947,8 @@ namespace BepuPhysics
 
         struct IsFallbackBatch { }
         struct IsNotFallbackBatch { }
-        unsafe bool ComputeIntegrationResponsibilitiesForConstraintRegion<TFallbackness>(int batchIndex, int typeBatchIndex, int constraintStart, int exclusiveConstraintEnd) where TFallbackness : unmanaged
+
+        bool ComputeIntegrationResponsibilitiesForConstraintRegion<TFallbackness>(int batchIndex, int typeBatchIndex, int constraintStart, int exclusiveConstraintEnd) where TFallbackness : unmanaged
         {
             ref var firstObservedForBatch = ref bodiesFirstObservedInBatches[batchIndex];
             ref var integrationFlagsForTypeBatch = ref integrationFlags[batchIndex][typeBatchIndex];
@@ -1072,7 +1069,7 @@ namespace BepuPhysics
         Action<int> constraintIntegrationResponsibilitiesWorker;
         IndexSet mergedConstrainedBodyHandles;
 
-        public override unsafe IndexSet PrepareConstraintIntegrationResponsibilities(IThreadDispatcher threadDispatcher = null)
+        public override IndexSet PrepareConstraintIntegrationResponsibilities(IThreadDispatcher threadDispatcher = null)
         {
             if (ActiveSet.Batches.Count > 0)
             {

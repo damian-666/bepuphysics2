@@ -294,25 +294,24 @@ namespace BepuPhysics
         /// <remarks><see cref="DefaultTypes.RegisterDefaults(Solver, NarrowPhase)"/> is called during simuation creation and registers all the built in types. Calling <see cref="Register"/> manually is only necessary if custom types are used.</remarks>
         public void Register<TDescription>() where TDescription : unmanaged, IConstraintDescription<TDescription>
         {
-            Unsafe.SkipInit(out TDescription description);
-            Debug.Assert(description.ConstraintTypeId >= 0, "Constraint type ids should never be negative. They're used for array indexing.");
-            if (TypeProcessors == null || description.ConstraintTypeId >= TypeProcessors.Length)
+            Debug.Assert(TDescription.ConstraintTypeId >= 0, "Constraint type ids should never be negative. They're used for array indexing.");
+            if (TypeProcessors == null || TDescription.ConstraintTypeId >= TypeProcessors.Length)
             {
                 //This will result in some unnecessary resizes, but it hardly matters. It only happens once on registration time.
                 //This also means we can just take the current type processors length as an accurate measure of type capacity for constraint batches.
-                Array.Resize(ref TypeProcessors, description.ConstraintTypeId + 1);
+                Array.Resize(ref TypeProcessors, TDescription.ConstraintTypeId + 1);
             }
-            if (TypeProcessors[description.ConstraintTypeId] == null)
+            if (TypeProcessors[TDescription.ConstraintTypeId] == null)
             {
-                var processor = description.CreateTypeProcessor();
-                TypeProcessors[description.ConstraintTypeId] = processor;
-                processor.Initialize(description.ConstraintTypeId);
+                var processor = TDescription.CreateTypeProcessor();
+                TypeProcessors[TDescription.ConstraintTypeId] = processor;
+                processor.Initialize(TDescription.ConstraintTypeId);
             }
             else
             {
-                Debug.Assert(TypeProcessors[description.ConstraintTypeId].GetType() == description.TypeProcessorType,                  
-                    $"Type processor {TypeProcessors[description.ConstraintTypeId].GetType().Name} has already been registered for this description's type id " +
-                    $"({typeof(TDescription).Name}, {default(TDescription).ConstraintTypeId}). " +
+                Debug.Assert(TypeProcessors[TDescription.ConstraintTypeId].GetType() == TDescription.TypeProcessorType,                  
+                    $"Type processor {TypeProcessors[TDescription.ConstraintTypeId].GetType().Name} has already been registered for this description's type id " +
+                    $"({typeof(TDescription).Name}, {TDescription.ConstraintTypeId}). " +
                     $"Cannot register two types with the same type id.");
             }
         }
@@ -346,7 +345,7 @@ namespace BepuPhysics
         }
 
         [Conditional("DEBUG")]
-        internal unsafe void ValidateConstraintReferenceKinematicity()
+        internal void ValidateConstraintReferenceKinematicity()
         {
             //Only the active set's body indices are flagged for kinematicity; the inactive sets store body handles.
             for (int setIndex = 0; setIndex < Sets.Length; ++setIndex)
@@ -394,7 +393,7 @@ namespace BepuPhysics
         }
 
         [Conditional("DEBUG")]
-        internal unsafe void ValidateConstrainedKinematicsSet()
+        internal void ValidateConstrainedKinematicsSet()
         {
             ref var set = ref bodies.ActiveSet;
             for (int i = 0; i < set.Count; ++i)
@@ -429,7 +428,7 @@ namespace BepuPhysics
         }
 
         [Conditional("DEBUG")]
-        internal unsafe void ValidateTrailingTypeBatchBodyReferences()
+        internal void ValidateTrailingTypeBatchBodyReferences()
         {
             ref var set = ref ActiveSet;
             for (int batchIndex = 0; batchIndex < set.Batches.Count; ++batchIndex)
@@ -455,7 +454,7 @@ namespace BepuPhysics
             }
         }
         [Conditional("DEBUG")]
-        internal unsafe void ValidateFallbackBatchEmptySlotReferences()
+        internal void ValidateFallbackBatchEmptySlotReferences()
         {
             ref var set = ref ActiveSet;
             if (set.Batches.Count > FallbackBatchThreshold)
@@ -479,7 +478,7 @@ namespace BepuPhysics
 
 
         [Conditional("DEBUG")]
-        internal unsafe void ValidateFallbackBodiesAreDynamic()
+        internal void ValidateFallbackBodiesAreDynamic()
         {
             ref var set = ref ActiveSet;
             if (set.Batches.Count > FallbackBatchThreshold)
@@ -515,7 +514,7 @@ namespace BepuPhysics
         }
 
         [Conditional("DEBUG")]
-        internal unsafe void ValidateFallbackBatchAccessSafety()
+        internal void ValidateFallbackBatchAccessSafety()
         {
             ref var set = ref ActiveSet;
             if (set.Batches.Count > FallbackBatchThreshold)
@@ -609,7 +608,7 @@ namespace BepuPhysics
         }
 
 
-        internal unsafe void ValidateFallbackBodyReferencesByHash(HashDiagnosticType hashDiagnosticType)
+        internal void ValidateFallbackBodyReferencesByHash(HashDiagnosticType hashDiagnosticType)
         {
             var hashes = InvasiveHashDiagnostics.Instance;
             ref var hash = ref hashes.GetHashForType(hashDiagnosticType);
@@ -982,7 +981,7 @@ namespace BepuPhysics
         /// <returns>Index of the batch that the constraint would fit in.</returns>
         /// <remarks>This is used by the narrowphase's multithreaded constraint adders to locate a spot for a new constraint without requiring a lock. Only after a candidate is located
         /// do those systems attempt an actual claim, limiting the duration of locks and increasing potential parallelism.</remarks>
-        internal unsafe int FindCandidateBatch(CollidablePair collidablePair)
+        internal int FindCandidateBatch(CollidablePair collidablePair)
         {
             ref var set = ref ActiveSet;
             GetSynchronizedBatchCount(out var synchronizedBatchCount, out var fallbackExists);
@@ -1056,7 +1055,7 @@ namespace BepuPhysics
             }
         }
 
-        unsafe internal void GetBlockingBodyHandles(Span<BodyHandle> bodyHandles, ref Span<BodyHandle> blockingBodyHandlesAllocation, Span<int> encodedBodyIndices)
+        internal void GetBlockingBodyHandles(Span<BodyHandle> bodyHandles, ref Span<BodyHandle> blockingBodyHandlesAllocation, Span<int> encodedBodyIndices)
         {
             //Kinematics do not block allocation in a batch; they are treated as read only by the solver.
             int blockingCount = 0;
@@ -1091,7 +1090,7 @@ namespace BepuPhysics
             return set.Batches.Count - 1;
         }
 
-        internal unsafe bool TryAllocateInBatch(int typeId, int targetBatchIndex, Span<BodyHandle> dynamicBodyHandles, Span<int> encodedBodyIndices, out ConstraintHandle constraintHandle, out ConstraintReference reference)
+        internal bool TryAllocateInBatch(int typeId, int targetBatchIndex, Span<BodyHandle> dynamicBodyHandles, Span<int> encodedBodyIndices, out ConstraintHandle constraintHandle, out ConstraintReference reference)
         {
             ref var set = ref ActiveSet;
             Debug.Assert(targetBatchIndex <= set.Batches.Count,
@@ -1189,7 +1188,7 @@ namespace BepuPhysics
             GetBlockingBodyHandles(bodyHandles, ref blockingBodyHandles, encodedBodyIndices);
             for (int i = 0; i <= set.Batches.Count; ++i)
             {
-                if (TryAllocateInBatch(description.ConstraintTypeId, i, blockingBodyHandles, encodedBodyIndices, out handle, out var reference))
+                if (TryAllocateInBatch(TDescription.ConstraintTypeId, i, blockingBodyHandles, encodedBodyIndices, out handle, out var reference))
                 {
                     ApplyDescriptionWithoutWaking(reference, description);
                     return;
@@ -1209,10 +1208,10 @@ namespace BepuPhysics
         public ConstraintHandle Add<TDescription>(Span<BodyHandle> bodyHandles, in TDescription description)
             where TDescription : unmanaged, IConstraintDescription<TDescription>
         {
-            Debug.Assert(description.ConstraintTypeId >= 0 && description.ConstraintTypeId < TypeProcessors.Length &&
-                TypeProcessors[description.ConstraintTypeId].GetType() == description.TypeProcessorType,
+            Debug.Assert(TDescription.ConstraintTypeId >= 0 && TDescription.ConstraintTypeId < TypeProcessors.Length &&
+                         TypeProcessors[TDescription.ConstraintTypeId].GetType() == TDescription.TypeProcessorType,
                 "The description's constraint type and type processor don't match what has been registered in the solver. Did you forget to register the constraint type?");
-            Debug.Assert(bodyHandles.Length == TypeProcessors[description.ConstraintTypeId].BodiesPerConstraint,
+            Debug.Assert(bodyHandles.Length == TypeProcessors[TDescription.ConstraintTypeId].BodiesPerConstraint,
                 "The number of bodies supplied to a constraint add must match the expected number of bodies involved in that constraint type. Did you use the wrong Solver.Add overload?");
             //Adding a constraint assumes that the involved bodies are active, so wake up anything that is sleeping.
             for (int i = 0; i < bodyHandles.Length; ++i)
@@ -1342,7 +1341,7 @@ namespace BepuPhysics
         /// <param name="batchIndex">Index of the batch to remove from.</param>
         /// <param name="typeId">Type id of the constraint to remove.</param>
         /// <param name="indexInTypeBatch">Index of the constraint to remove within its type batch.</param>
-        internal unsafe void RemoveFromBatch(int batchIndex, int typeId, int indexInTypeBatch)
+        internal void RemoveFromBatch(int batchIndex, int typeId, int indexInTypeBatch)
         {
             ref var batch = ref ActiveSet.Batches[batchIndex];
             if (batchIndex == FallbackBatchThreshold)
@@ -1418,8 +1417,8 @@ namespace BepuPhysics
             //If the compiler can prove that the BuildDescription function never references any of the instance fields, it will elide the (potentially expensive) initialization.
             //The BuildDescription and ConstraintTypeId members are basically static. It would be nice if C# could express that a little more cleanly with no overhead.
             BundleIndexing.GetBundleIndices(constraintReference.IndexInTypeBatch, out var bundleIndex, out var innerIndex);
-            Debug.Assert(constraintReference.TypeBatch.TypeId == default(TConstraintDescription).ConstraintTypeId, "Constraint type associated with the TConstraintDescription generic type parameter must match the type of the constraint in the solver.");
-            default(TConstraintDescription).BuildDescription(ref constraintReference.TypeBatch, bundleIndex, innerIndex, out description);
+            Debug.Assert(constraintReference.TypeBatch.TypeId == TConstraintDescription.ConstraintTypeId, "Constraint type associated with the TConstraintDescription generic type parameter must match the type of the constraint in the solver.");
+            TConstraintDescription.BuildDescription(ref constraintReference.TypeBatch, bundleIndex, innerIndex, out description);
         }
 
         /// <summary>
@@ -1435,10 +1434,10 @@ namespace BepuPhysics
             //If the compiler can prove that the BuildDescription function never references any of the instance fields, it will elide the (potentially expensive) initialization.
             //The BuildDescription and ConstraintTypeId members are basically static. It would be nice if C# could express that a little more cleanly with no overhead.
             ref var location = ref HandleToConstraint[handle.Value];
-            Debug.Assert(default(TConstraintDescription).ConstraintTypeId == location.TypeId, "Constraint type associated with the TConstraintDescription generic type parameter must match the type of the constraint in the solver.");
+            Debug.Assert(TConstraintDescription.ConstraintTypeId == location.TypeId, "Constraint type associated with the TConstraintDescription generic type parameter must match the type of the constraint in the solver.");
             ref var typeBatch = ref Sets[location.SetIndex].Batches[location.BatchIndex].GetTypeBatch(location.TypeId);
             BundleIndexing.GetBundleIndices(location.IndexInTypeBatch, out var bundleIndex, out var innerIndex);
-            default(TConstraintDescription).BuildDescription(ref typeBatch, bundleIndex, innerIndex, out description);
+            TConstraintDescription.BuildDescription(ref typeBatch, bundleIndex, innerIndex, out description);
         }
 
 
@@ -1569,7 +1568,7 @@ namespace BepuPhysics
         /// </summary>
         /// <param name="constraintHandle">Constraint to look up the accumulated impulses of.</param>
         /// <returns>Magnitude of the accumulated impulses associated with the given constraint.</returns>
-        public unsafe float GetAccumulatedImpulseMagnitude(ConstraintHandle constraintHandle)
+        public float GetAccumulatedImpulseMagnitude(ConstraintHandle constraintHandle)
         {
             return (float)Math.Sqrt(GetAccumulatedImpulseMagnitudeSquared(constraintHandle));
         }
@@ -1589,7 +1588,7 @@ namespace BepuPhysics
         {
             public int DynamicCount;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void LoopBody(int encodedBodyReference)
+            public void LoopBody(int encodedBodyReference)
             {
                 ++DynamicCount;
             }
@@ -1671,7 +1670,7 @@ namespace BepuPhysics
             public int EncodedCount;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void LoopBody(int encodedBodyReference)
+            public void LoopBody(int encodedBodyReference)
             {
                 Debug.Assert(EncodedCount < MaximumBodiesPerConstraint, "We assumed that the number of bodies per constraint was limited; if this assumption fails, it could cause a stack overrun.");
                 if (Bodies.IsEncodedDynamicReference(encodedBodyReference))
@@ -1798,7 +1797,7 @@ namespace BepuPhysics
         /// <param name="typeBatch">Type batch containing the constraint to enumerate.</param>
         /// <param name="indexInTypeBatch">Index of the constraint to enumerate in the type batch.</param>
         /// <param name="enumerator">Enumerator to call for each connected body reference.</param>
-        public unsafe void EnumerateConnectedRawBodyReferences<TEnumerator>(ref TypeBatch typeBatch, int indexInTypeBatch, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
+        public void EnumerateConnectedRawBodyReferences<TEnumerator>(ref TypeBatch typeBatch, int indexInTypeBatch, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
         {
             EnumerateConnectedBodyReferences<TEnumerator, ReportEncodedReferences>(ref typeBatch, indexInTypeBatch, ref enumerator);
         }
@@ -1810,7 +1809,7 @@ namespace BepuPhysics
         /// <typeparam name="TEnumerator">Type of the enumerator to call on each connected body reference.</typeparam>
         /// <param name="constraintHandle">Constraint to enumerate.</param>
         /// <param name="enumerator">Enumerator to call for each connected body reference.</param>
-        public unsafe void EnumerateConnectedRawBodyReferences<TEnumerator>(ConstraintHandle constraintHandle, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
+        public void EnumerateConnectedRawBodyReferences<TEnumerator>(ConstraintHandle constraintHandle, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
         {
             ref var constraintLocation = ref HandleToConstraint[constraintHandle.Value];
             ref var typeBatch = ref Sets[constraintLocation.SetIndex].Batches[constraintLocation.BatchIndex].GetTypeBatch(constraintLocation.TypeId);
@@ -1826,7 +1825,7 @@ namespace BepuPhysics
         /// <param name="typeBatch">Type batch containing the constraint to enumerate.</param>
         /// <param name="indexInTypeBatch">Index of the constraint to enumerate in the type batch.</param>
         /// <param name="enumerator">Enumerator to call for each connected body reference.</param>
-        public unsafe void EnumerateConnectedBodyReferences<TEnumerator>(ref TypeBatch typeBatch, int indexInTypeBatch, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
+        public void EnumerateConnectedBodyReferences<TEnumerator>(ref TypeBatch typeBatch, int indexInTypeBatch, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
         {
             EnumerateConnectedBodyReferences<TEnumerator, ReportDecodedReferences>(ref typeBatch, indexInTypeBatch, ref enumerator);
         }
@@ -1838,7 +1837,7 @@ namespace BepuPhysics
         /// <typeparam name="TEnumerator">Type of the enumerator to call on each connected body reference.</typeparam>
         /// <param name="constraintHandle">Constraint to enumerate.</param>
         /// <param name="enumerator">Enumerator to call for each connected body reference.</param>
-        public unsafe void EnumerateConnectedBodyReferences<TEnumerator>(ConstraintHandle constraintHandle, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
+        public void EnumerateConnectedBodyReferences<TEnumerator>(ConstraintHandle constraintHandle, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
         {
             ref var constraintLocation = ref HandleToConstraint[constraintHandle.Value];
             ref var typeBatch = ref Sets[constraintLocation.SetIndex].Batches[constraintLocation.BatchIndex].GetTypeBatch(constraintLocation.TypeId);
@@ -1855,7 +1854,7 @@ namespace BepuPhysics
         /// <param name="typeBatch">Type batch containing the constraint to enumerate.</param>
         /// <param name="indexInTypeBatch">Index of the constraint to enumerate in the type batch.</param>
         /// <param name="enumerator">Enumerator to call for each connected dynamic body reference.</param>
-        public unsafe void EnumerateConnectedDynamicBodies<TEnumerator>(ref TypeBatch typeBatch, int indexInTypeBatch, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
+        public void EnumerateConnectedDynamicBodies<TEnumerator>(ref TypeBatch typeBatch, int indexInTypeBatch, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
         {
             EnumerateConnectedBodyReferences<TEnumerator, ReportDecodedDynamicReferences>(ref typeBatch, indexInTypeBatch, ref enumerator);
         }
@@ -1868,7 +1867,7 @@ namespace BepuPhysics
         /// <typeparam name="TEnumerator">Type of the enumerator to call on each connected dynamic body reference.</typeparam>
         /// <param name="constraintHandle">Constraint to enumerate.</param>
         /// <param name="enumerator">Enumerator to call for each connected dynamic body reference.</param>
-        public unsafe void EnumerateConnectedDynamicBodies<TEnumerator>(ConstraintHandle constraintHandle, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
+        public void EnumerateConnectedDynamicBodies<TEnumerator>(ConstraintHandle constraintHandle, ref TEnumerator enumerator) where TEnumerator : IForEach<int>
         {
             ref var constraintLocation = ref HandleToConstraint[constraintHandle.Value];
             ref var typeBatch = ref Sets[constraintLocation.SetIndex].Batches[constraintLocation.BatchIndex].GetTypeBatch(constraintLocation.TypeId);

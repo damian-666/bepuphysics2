@@ -2,11 +2,9 @@
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 
 namespace BepuPhysics.CollisionDetection
@@ -122,13 +120,13 @@ namespace BepuPhysics.CollisionDetection
         struct PendingConstraintComparer : IComparerRef<SortConstraintTarget>
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe int Compare(ref SortConstraintTarget a, ref SortConstraintTarget b)
+            public int Compare(ref SortConstraintTarget a, ref SortConstraintTarget b)
             {
                 return a.SortKey.CompareTo(b.SortKey);
             }
         }
 
-        unsafe void BuildSortingTargets(ref QuickList<SortConstraintTarget> list, int typeIndex, int workerCount)
+        void BuildSortingTargets(ref QuickList<SortConstraintTarget> list, int typeIndex, int workerCount)
         {
             for (int i = 0; i < workerCount; ++i)
             {
@@ -153,7 +151,7 @@ namespace BepuPhysics.CollisionDetection
             }
         }
 
-        unsafe void ExecutePreflushJob(int workerIndex, ref PreflushJob job)
+        void ExecutePreflushJob(int workerIndex, ref PreflushJob job)
         {
             switch (job.Type)
             {

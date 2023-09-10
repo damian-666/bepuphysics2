@@ -1,11 +1,8 @@
 ﻿using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using BepuPhysics.Collidables;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System;
-using BepuPhysics.Constraints;
 using System.Diagnostics;
 using System.Threading;
 using BepuUtilities;
@@ -399,7 +396,7 @@ namespace BepuPhysics.CollisionDetection
             Callbacks.Dispose();
         }
 
-        public unsafe void HandleOverlap(int workerIndex, CollidableReference a, CollidableReference b)
+        public void HandleOverlap(int workerIndex, CollidableReference a, CollidableReference b)
         {
             Debug.Assert(a.Packed != b.Packed, "Excuse me, broad phase, but an object cannot collide with itself!");
             SortCollidableReferencesForPair(a, b, out var aMobility, out var bMobility, out a, out b);
@@ -477,7 +474,7 @@ namespace BepuPhysics.CollisionDetection
 
         }
 
-        unsafe struct CCDSweepFilter : ISweepFilter
+        struct CCDSweepFilter : ISweepFilter
         {
             public NarrowPhase<TCallbacks> NarrowPhase;
             public CollidablePair Pair;
@@ -491,7 +488,7 @@ namespace BepuPhysics.CollisionDetection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void AddBatchEntries(int workerIndex, ref OverlapWorker overlapWorker,
+        private void AddBatchEntries(int workerIndex, ref OverlapWorker overlapWorker,
             ref CollidablePair pair,
             ref ContinuousDetection continuityA, ref ContinuousDetection continuityB,
             TypedIndex shapeA, TypedIndex shapeB,

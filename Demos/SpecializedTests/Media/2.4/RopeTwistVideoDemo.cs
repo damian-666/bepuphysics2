@@ -4,12 +4,9 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
 using DemoRenderer;
-using DemoRenderer.UI;
 using Demos.Demos;
-using DemoUtilities;
 using System;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace Demos.SpecializedTests.Media;
 
@@ -18,7 +15,7 @@ namespace Demos.SpecializedTests.Media;
 /// </summary>
 public class RopeTwistVideoDemo : Demo
 {
-    public unsafe override void Initialize(ContentArchive content, Camera camera)
+    public override void Initialize(ContentArchive content, Camera camera)
     {
         camera.Position = new Vector3(0, 20, 20);
         camera.Yaw = 0;

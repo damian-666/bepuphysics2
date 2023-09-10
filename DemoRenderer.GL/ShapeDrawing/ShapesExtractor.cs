@@ -68,7 +68,7 @@ namespace DemoRenderer.ShapeDrawing
             ShapeCache.Clear();
         }
 
-        private unsafe void AddCompoundChildren(ref Buffer<CompoundChild> children, Shapes shapes, RigidPose pose, Vector3 color, ref ShapeCache shapeCache, BufferPool pool)
+        private void AddCompoundChildren(ref Buffer<CompoundChild> children, Shapes shapes, RigidPose pose, Vector3 color, ref ShapeCache shapeCache, BufferPool pool)
         {
             for (int i = 0; i < children.Length; ++i)
             {
@@ -276,7 +276,7 @@ namespace DemoRenderer.ShapeDrawing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void AddShape<TShape>(TShape shape, Shapes shapes, RigidPose pose, Vector3 color) where TShape : IShape
         {
-            AddShape(Unsafe.AsPointer(ref shape), shape.TypeId, shapes, pose, color, ref ShapeCache, pool);
+            AddShape(Unsafe.AsPointer(ref shape), TShape.TypeId, shapes, pose, color, ref ShapeCache, pool);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

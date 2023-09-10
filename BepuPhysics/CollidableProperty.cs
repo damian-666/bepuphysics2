@@ -1,10 +1,8 @@
 ﻿using BepuPhysics.Collidables;
 using BepuUtilities.Memory;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace BepuPhysics
 {
@@ -93,7 +91,7 @@ namespace BepuPhysics
         /// <summary>
         /// Gets a reference to the properties associated with a collidable.
         /// </summary>
-        /// <param name="staticHandle">Collidable to retrieve the properties for.</param>
+        /// <param name="collidable">Collidable to retrieve the properties for.</param>
         /// <returns>Reference to properties associated with a collidable.</returns>
         public ref T this[CollidableReference collidable]
         {
@@ -145,7 +143,7 @@ namespace BepuPhysics
         /// <summary>
         /// Ensures there is space for a given collidable reference and returns a reference to the used memory.
         /// </summary>
-        /// <param name="handle">Collidable reference to allocate for.</param>
+        /// <param name="collidableReference">Collidable reference to allocate for.</param>
         /// <returns>Reference to the data for the given collidable.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T Allocate(CollidableReference collidableReference)

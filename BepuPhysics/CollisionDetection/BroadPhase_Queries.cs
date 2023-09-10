@@ -2,11 +2,8 @@
 using BepuPhysics.Trees;
 using BepuUtilities;
 using BepuUtilities.Memory;
-using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace BepuPhysics.CollisionDetection
 {
@@ -15,7 +12,7 @@ namespace BepuPhysics.CollisionDetection
     /// </summary>
     public interface IBroadPhaseSweepTester
     {
-        unsafe void Test(CollidableReference collidable, ref float maximumT);
+        void Test(CollidableReference collidable, ref float maximumT);
     }
 
     partial class BroadPhase
@@ -60,7 +57,7 @@ namespace BepuPhysics.CollisionDetection
             public Buffer<CollidableReference> Leaves;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void TestLeaf(int leafIndex, ref float maximumT)
+            public void TestLeaf(int leafIndex, ref float maximumT)
             {
                 LeafTester.Test(Leaves[leafIndex], ref maximumT);
             }
@@ -98,7 +95,7 @@ namespace BepuPhysics.CollisionDetection
         /// <param name="direction">Direction along which to sweep the bounding box.</param>
         /// <param name="maximumT">Maximum length of the sweep in units of the direction's length.</param>
         /// <param name="sweepTester">Callback to execute on sweep-leaf bounding box intersections.</param>
-        public unsafe void Sweep<TSweepTester>(in BoundingBox boundingBox, Vector3 direction, float maximumT, ref TSweepTester sweepTester) where TSweepTester : IBroadPhaseSweepTester
+        public void Sweep<TSweepTester>(in BoundingBox boundingBox, Vector3 direction, float maximumT, ref TSweepTester sweepTester) where TSweepTester : IBroadPhaseSweepTester
         {
             Sweep(boundingBox.Min, boundingBox.Max, direction, maximumT, ref sweepTester);
         }
@@ -122,7 +119,7 @@ namespace BepuPhysics.CollisionDetection
         /// <param name="min">Minimum bounds of the query box.</param>
         /// <param name="max">Maximum bounds of the query box.</param>
         /// <param name="overlapEnumerator">Enumerator to call for overlaps.</param>
-        public unsafe void GetOverlaps<TOverlapEnumerator>(Vector3 min, Vector3 max, ref TOverlapEnumerator overlapEnumerator) where TOverlapEnumerator : IBreakableForEach<CollidableReference>
+        public void GetOverlaps<TOverlapEnumerator>(Vector3 min, Vector3 max, ref TOverlapEnumerator overlapEnumerator) where TOverlapEnumerator : IBreakableForEach<CollidableReference>
         {
             BoxQueryEnumerator<TOverlapEnumerator> enumerator;
             enumerator.Enumerator = overlapEnumerator;
@@ -140,7 +137,7 @@ namespace BepuPhysics.CollisionDetection
         /// <typeparam name="TOverlapEnumerator">Type of the enumerator to call for overlaps.</typeparam>
         /// <param name="boundingBox">Query box bounds.</param>
         /// <param name="overlapEnumerator">Enumerator to call for overlaps.</param>
-        public unsafe void GetOverlaps<TOverlapEnumerator>(in BoundingBox boundingBox, ref TOverlapEnumerator overlapEnumerator) where TOverlapEnumerator : IBreakableForEach<CollidableReference>
+        public void GetOverlaps<TOverlapEnumerator>(in BoundingBox boundingBox, ref TOverlapEnumerator overlapEnumerator) where TOverlapEnumerator : IBreakableForEach<CollidableReference>
         {
             BoxQueryEnumerator<TOverlapEnumerator> enumerator;
             enumerator.Enumerator = overlapEnumerator;

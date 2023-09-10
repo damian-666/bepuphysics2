@@ -1,12 +1,8 @@
 ﻿using BepuPhysics.Collidables;
 using BepuUtilities;
 using BepuUtilities.Collections;
-using BepuUtilities.Memory;
-using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace BepuPhysics
 {
@@ -209,7 +205,7 @@ namespace BepuPhysics
         /// <summary>
         /// Gets whether the body is kinematic, meaning its inverse inertia and mass are all zero.
         /// </summary>
-        public unsafe bool Kinematic { get { return Bodies.IsKinematicUnsafeGCHole(ref LocalInertia); } }
+        public bool Kinematic { get { return Bodies.IsKinematicUnsafeGCHole(ref LocalInertia); } }
 
         /// <summary>
         /// Gets whether the body has locked inertia, meaning its inverse inertia tensor is zero.

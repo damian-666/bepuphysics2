@@ -4,12 +4,9 @@ using BepuPhysics.Constraints;
 using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
-using DemoRenderer.UI;
 using DemoUtilities;
 using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace Demos.SpecializedTests.Media
 {
@@ -18,7 +15,7 @@ namespace Demos.SpecializedTests.Media
     /// </summary>
     public class ExcessivePyramidVideoDemo : Demo
     {
-        public unsafe override void Initialize(ContentArchive content, Camera camera)
+        public override void Initialize(ContentArchive content, Camera camera)
         {
             camera.Position = new Vector3(-120, 32, 1045);
             camera.Yaw = MathHelper.Pi * 1f / 4;

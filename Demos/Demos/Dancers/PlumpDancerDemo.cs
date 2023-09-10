@@ -1,9 +1,7 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
-using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BepuUtilities;
-using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
@@ -11,7 +9,6 @@ using DemoUtilities;
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace Demos.Demos.Dancers
 {
@@ -210,7 +207,7 @@ namespace Demos.Demos.Dancers
         }
 
 
-        public unsafe override void Initialize(ContentArchive content, Camera camera)
+        public override void Initialize(ContentArchive content, Camera camera)
         {
             camera.Position = new Vector3(0, 2, 10);
             camera.Yaw = 0;
@@ -223,7 +220,7 @@ namespace Demos.Demos.Dancers
             dancers = new DemoDancers().Initialize<DeformableCallbacks, DeformableCollisionFilter>(8, 8, Simulation, collisionFilters, ThreadDispatcher, BufferPool, new SolveDescription(1, 1), CreateFatSuit, new DeformableCollisionFilter(0, 0, 0, -1));
 
         }
-        public unsafe override void Update(Window window, Camera camera, Input input, float dt)
+        public override void Update(Window window, Camera camera, Input input, float dt)
         {
             dancers.UpdateTargets(Simulation);
             base.Update(window, camera, input, dt);

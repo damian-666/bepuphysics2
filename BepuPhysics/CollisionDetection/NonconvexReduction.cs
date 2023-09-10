@@ -1,13 +1,9 @@
-﻿using BepuPhysics.CollisionDetection.CollisionTasks;
-using BepuUtilities;
-using BepuUtilities.Collections;
+﻿using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace BepuPhysics.CollisionDetection
 {
@@ -66,7 +62,7 @@ namespace BepuPhysics.CollisionDetection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float ComputeDistinctiveness(in ConvexContact candidate, Vector3 contactNormal, in NonconvexContact reducedContact, float distanceSquaredInterpolationMin, float inverseDistanceSquaredInterpolationSpan, float depthScale)
+        static float ComputeDistinctiveness(in ConvexContact candidate, Vector3 contactNormal, in Contact reducedContact, float distanceSquaredInterpolationMin, float inverseDistanceSquaredInterpolationSpan, float depthScale)
         {
             //The more distant a contact is from another contact, or the more different its normal is, the more distinct it is considered.
             //The goal is for distinctiveness to range from around 0 to 2. The exact values aren't extremely important- we just want a rough range
@@ -324,7 +320,7 @@ namespace BepuPhysics.CollisionDetection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void OnChildCompleted<TCallbacks>(ref PairContinuation report, ref ConvexContactManifold manifold, ref CollisionBatcher<TCallbacks> batcher)
+        public void OnChildCompleted<TCallbacks>(ref PairContinuation report, ref ConvexContactManifold manifold, ref CollisionBatcher<TCallbacks> batcher)
             where TCallbacks : struct, ICollisionCallbacks
         {
             Children[report.ChildIndex].Manifold = manifold;

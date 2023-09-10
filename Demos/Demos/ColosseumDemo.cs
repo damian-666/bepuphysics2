@@ -2,15 +2,12 @@
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using BepuUtilities;
-using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
 using DemoUtilities;
 using System;
-using System.Diagnostics;
 using System.Numerics;
-using System.Threading;
 
 namespace Demos.Demos
 {
@@ -62,7 +59,7 @@ namespace Demos.Demos
             return position;
         }
 
-        public unsafe override void Initialize(ContentArchive content, Camera camera)
+        public override void Initialize(ContentArchive content, Camera camera)
         {
             camera.Position = new Vector3(-30, 40, -30);
             camera.Yaw = MathHelper.Pi * 3f / 4;

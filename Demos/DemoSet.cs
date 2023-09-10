@@ -6,11 +6,8 @@ using Demos.Demos.Characters;
 using Demos.Demos.Dancers;
 using Demos.Demos.Sponsors;
 using Demos.Demos.Tanks;
-using Demos.SpecializedTests;
-using Demos.SpecializedTests.Media;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Demos
 {
@@ -46,11 +43,6 @@ namespace Demos
 
         public DemoSet()
         {
-            //AddOption<BroadPhaseStressTestDemo>();
-            //AddOption<FountainStressTestDemo>();
-            //AddOption<TreeFiddlingTestDemo>();
-            //AddOption<TaskQueueTestDemo>();
-            //AddOption<ShapePileTestDemo>();
             AddOption<CarDemo>();
             AddOption<TankDemo>();
             AddOption<CharacterDemo>();

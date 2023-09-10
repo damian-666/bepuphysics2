@@ -3,8 +3,6 @@ using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -80,7 +78,7 @@ namespace BepuPhysics.Trees
                     return;
                 }
                 Debug.Assert(overlapHandlers.Length >= threadCount);
-                const float jobMultiplier = 2.5f;
+                const float jobMultiplier = 8f;
                 var targetJobCount = Math.Max(1, jobMultiplier * threadCount);
                 leafThreshold = (int)(tree.LeafCount / targetJobCount);
                 jobs = new QuickList<Job>((int)(targetJobCount * 2), Pool);
@@ -101,7 +99,7 @@ namespace BepuPhysics.Trees
                     jobs.Dispose(Pool);
             }
 
-            public unsafe void ExecuteJob(int jobIndex, int workerIndex)
+            public void ExecuteJob(int jobIndex, int workerIndex)
             {
                 ref var overlap = ref jobs[jobIndex];
                 if (overlap.A >= 0)
@@ -141,7 +139,7 @@ namespace BepuPhysics.Trees
             /// Executes a single worker of the multithreaded self test.
             /// </summary>
             /// <param name="workerIndex">Index of the worker executing this set of tests.</param>
-            public unsafe void PairTest(int workerIndex)
+            public void PairTest(int workerIndex)
             {
                 Debug.Assert(workerIndex >= 0 && workerIndex < OverlapHandlers.Length);
                 int nextNodePairIndex;
@@ -152,7 +150,7 @@ namespace BepuPhysics.Trees
                 }
             }
 
-            unsafe void DispatchTestForLeaf(int leafIndex, ref NodeChild leafChild, int nodeIndex, int nodeLeafCount, ref TOverlapHandler results)
+            void DispatchTestForLeaf(int leafIndex, ref NodeChild leafChild, int nodeIndex, int nodeLeafCount, ref TOverlapHandler results)
             {
                 if (nodeIndex < 0)
                 {
@@ -167,7 +165,7 @@ namespace BepuPhysics.Trees
                 }
             }
 
-            unsafe void TestLeafAgainstNode(int leafIndex, ref NodeChild leafChild, int nodeIndex, ref TOverlapHandler results)
+            void TestLeafAgainstNode(int leafIndex, ref NodeChild leafChild, int nodeIndex, ref TOverlapHandler results)
             {
                 ref var node = ref Tree.Nodes[nodeIndex];
                 ref var a = ref node.A;
@@ -191,7 +189,7 @@ namespace BepuPhysics.Trees
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            unsafe void DispatchTestForNodes(ref NodeChild a, ref NodeChild b, ref TOverlapHandler results)
+            void DispatchTestForNodes(ref NodeChild a, ref NodeChild b, ref TOverlapHandler results)
             {
                 if (a.Index >= 0)
                 {
@@ -221,7 +219,7 @@ namespace BepuPhysics.Trees
                 }
             }
 
-            unsafe void GetJobsBetweenDifferentNodes(ref Node a, ref Node b, ref TOverlapHandler results)
+            void GetJobsBetweenDifferentNodes(ref Node a, ref Node b, ref TOverlapHandler results)
             {
                 //There are no shared children, so test them all.
 
@@ -253,7 +251,7 @@ namespace BepuPhysics.Trees
 
             }
 
-            unsafe void CollectJobsInNode(int nodeIndex, int leafCount, ref TOverlapHandler results)
+            void CollectJobsInNode(int nodeIndex, int leafCount, ref TOverlapHandler results)
             {
                 if (leafCount <= leafThreshold)
                 {

@@ -3,13 +3,9 @@ using BepuPhysics.Constraints.Contact;
 using BepuUtilities;
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace BepuPhysics.CollisionDetection
 {
@@ -52,7 +48,7 @@ namespace BepuPhysics.CollisionDetection
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void ScatterNewImpulses<TContactImpulses>(ref ConstraintReference constraintReference, ref TContactImpulses contactImpulses)
+        public void ScatterNewImpulses<TContactImpulses>(ref ConstraintReference constraintReference, ref TContactImpulses contactImpulses)
         {
             //Note that we do not modify the friction accumulated impulses. This is just for simplicity- the impact of accumulated impulses on friction *should* be relatively
             //hard to notice compared to penetration impulses. TODO: We should, however, test this assumption.
@@ -92,7 +88,7 @@ namespace BepuPhysics.CollisionDetection
         public abstract void FlushSequentially<TCallbacks>(ref UntypedList list, int narrowPhaseConstraintTypeId, Simulation simulation, PairCache pairCache)
             where TCallbacks : struct, INarrowPhaseCallbacks;
 
-        public abstract unsafe void UpdateConstraintForManifold<TContactManifold, TCallBodyHandles, TCallbacks>(
+        public abstract void UpdateConstraintForManifold<TContactManifold, TCallBodyHandles, TCallbacks>(
             NarrowPhase<TCallbacks> narrowPhase, int manifoldTypeAsConstraintType, int workerIndex,
             ref CollidablePair pair, ref TContactManifold manifoldPointer, ref PairMaterialProperties material, TCallBodyHandles bodyHandles)
             where TCallbacks : struct, INarrowPhaseCallbacks;
@@ -182,7 +178,7 @@ namespace BepuPhysics.CollisionDetection
                     "The layout of nonconvex accumulated impulses seems to have changed; the assumptions of impulse gather/scatter are probably no longer valid.");
             }
             AccumulatedImpulseBundleStrideInBytes = Unsafe.SizeOf<TAccumulatedImpulses>();
-            ConstraintTypeId = default(TConstraintDescription).ConstraintTypeId;
+            ConstraintTypeId = TConstraintDescription.ConstraintTypeId;
         }
         public override void DeterministicallyAdd<TCallbacks>(int typeIndex, NarrowPhase<TCallbacks>.OverlapWorker[] overlapWorkers,
             ref QuickList<NarrowPhase<TCallbacks>.SortConstraintTarget> constraintsOfType,
@@ -207,7 +203,7 @@ namespace BepuPhysics.CollisionDetection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static unsafe void UpdateConstraint<TCallbacks, TCallBodyHandles>(
+        protected static void UpdateConstraint<TCallbacks, TCallBodyHandles>(
             NarrowPhase<TCallbacks> narrowPhase, int manifoldTypeAsConstraintType, int workerIndex,
             ref CollidablePair pair, ref ConstraintCache constraintCache, int newContactCount, ref TConstraintDescription description, TCallBodyHandles bodyHandles)
             where TCallbacks : struct, INarrowPhaseCallbacks
@@ -291,7 +287,7 @@ namespace BepuPhysics.CollisionDetection
                 Debug.Assert(manifold.Count == 1, "Nonconvex manifolds should only result in convex constraints when the contact count is 1.");
                 Unsafe.SkipInit(out ConstraintCache constraintCache);
                 Unsafe.SkipInit(out TConstraintDescription description);
-                CopyContactData(ref manifold, ref constraintCache, ref description.GetFirstContact(ref description));
+                CopyContactData(ref manifold, ref constraintCache, ref TConstraintDescription.GetFirstContact(ref description));
                 description.CopyManifoldWideProperties(ref manifold.Contact0.Normal, ref material);
                 UpdateConstraint(narrowPhase, manifoldTypeAsConstraintType, workerIndex, ref pair, ref constraintCache, manifold.Count, ref description, bodyHandles);
             }
@@ -349,7 +345,7 @@ namespace BepuPhysics.CollisionDetection
                 Debug.Assert(manifold.Count == 1, "Nonconvex manifolds should only result in convex constraints when the contact count is 1.");
                 Unsafe.SkipInit(out ConstraintCache constraintCache);
                 Unsafe.SkipInit(out TConstraintDescription description);
-                CopyContactData(ref manifold, ref constraintCache, ref description.GetFirstContact(ref description));
+                CopyContactData(ref manifold, ref constraintCache, ref TConstraintDescription.GetFirstContact(ref description));
                 description.CopyManifoldWideProperties(ref manifold.OffsetB, ref manifold.Contact0.Normal, ref material);
                 UpdateConstraint(narrowPhase, manifoldTypeAsConstraintType, workerIndex, ref pair, ref constraintCache, manifold.Count, ref description, bodyHandles);
             }
@@ -406,7 +402,7 @@ namespace BepuPhysics.CollisionDetection
             ref var manifold = ref Unsafe.As<TContactManifold, NonconvexContactManifold>(ref manifoldPointer);
             Unsafe.SkipInit(out ConstraintCache constraintCache);
             Unsafe.SkipInit(out TConstraintDescription description);
-            CopyContactData(ref manifold, ref constraintCache, ref description.GetFirstContact(ref description));
+            CopyContactData(ref manifold, ref constraintCache, ref TConstraintDescription.GetFirstContact(ref description));
             description.CopyManifoldWideProperties(ref material);
             UpdateConstraint(narrowPhase, manifoldTypeAsConstraintType, workerIndex, ref pair, ref constraintCache, manifold.Count, ref description, bodyHandles);
         }
@@ -452,7 +448,7 @@ namespace BepuPhysics.CollisionDetection
             ref var manifold = ref Unsafe.As<TContactManifold, NonconvexContactManifold>(ref manifoldPointer);
             Unsafe.SkipInit(out ConstraintCache constraintCache);
             Unsafe.SkipInit(out TConstraintDescription description);
-            CopyContactData(ref manifold, ref constraintCache, ref description.GetFirstContact(ref description));
+            CopyContactData(ref manifold, ref constraintCache, ref TConstraintDescription.GetFirstContact(ref description));
             description.CopyManifoldWideProperties(ref manifold.OffsetB, ref material);
             UpdateConstraint(narrowPhase, manifoldTypeAsConstraintType, workerIndex, ref pair, ref constraintCache, manifold.Count, ref description, bodyHandles);
         }

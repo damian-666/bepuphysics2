@@ -1,6 +1,5 @@
 ﻿using BepuUtilities.Collections;
 using System;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace BepuUtilities
@@ -14,7 +13,7 @@ namespace BepuUtilities
         public int Y;
         public int Z;
 
-        public unsafe override int GetHashCode()
+        public override int GetHashCode()
         {
             const ulong p1 = 961748927UL;
             const ulong p2 = 899809343UL;

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using BepuUtilities.Memory;
@@ -237,7 +234,7 @@ public unsafe struct TaskStack
     /// <param name="workerIndex">Index of the worker stack to push the tasks onto.</param>
     /// <param name="tag">User tag associated with the job spanning the submitted tasks.</param>
     /// <remarks>This must not be used while other threads could be performing task pushes or pops that could affect the specified worker.</remarks>
-    public unsafe void PushUnsafely(Task task, int workerIndex, IThreadDispatcher dispatcher, ulong tag = 0)
+    public void PushUnsafely(Task task, int workerIndex, IThreadDispatcher dispatcher, ulong tag = 0)
     {
         PushUnsafely(new Span<Task>(&task, 1), workerIndex, dispatcher, tag);
     }
@@ -454,13 +451,13 @@ public unsafe struct TaskStack
     }
 
     /// <summary>
-    /// Convenience function for requesting a stop. Requires the context to be the expected <see cref="TaskStack"/>.
+    /// Convenience function for requesting a stop. Requires the context to be a pointer to the expected <see cref="TaskStack"/>.
     /// </summary>
     /// <param name="id">Id of the task.</param>
     /// <param name="untypedContext"><see cref="TaskStack"/> to be stopped.</param>
     /// <param name="workerIndex">Index of the worker executing this task.</param>
     /// <param name="dispatcher">Dispatcher associated with the execution.</param>
-    public static unsafe void RequestStopTaskFunction(long id, void* untypedContext, int workerIndex, IThreadDispatcher dispatcher)
+    public static void RequestStopTaskFunction(long id, void* untypedContext, int workerIndex, IThreadDispatcher dispatcher)
     {
         ((TaskStack*)untypedContext)->RequestStop();
     }
@@ -565,11 +562,23 @@ public unsafe struct TaskStack
     public static void DispatchWorkerFunction(int workerIndex, IThreadDispatcher dispatcher)
     {
         var taskStack = (TaskStack*)dispatcher.UnmanagedContext;
-        PopTaskResult popTaskResult;
         var waiter = new SpinWait();
-        while ((popTaskResult = taskStack->TryPopAndRun(workerIndex, dispatcher)) != PopTaskResult.Stop)
+        while (true)
         {
-            waiter.SpinOnce(-1);
+            switch (taskStack->TryPopAndRun(workerIndex, dispatcher))
+            {
+                case PopTaskResult.Stop:
+                    //Done!
+                    return;
+                case PopTaskResult.Success:
+                    //If we ran a task, then the waiter should return to an aggressive spin because more work may be immediately available.
+                    waiter.Reset();
+                    break;
+                default:
+                    //No work available, but we should keep going.
+                    waiter.SpinOnce(-1);
+                    break;
+            }
         }
     }
 

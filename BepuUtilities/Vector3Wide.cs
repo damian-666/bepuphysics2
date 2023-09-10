@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace BepuUtilities
@@ -179,8 +178,8 @@ namespace BepuUtilities
         /// <summary>
         /// Finds the result of subtracting the components of a vector from a scalar.
         /// </summary>
-        /// <param name="v">Vector to subtract from the scalar.</param>
-        /// <param name="s">Scalar to subtract from.</param>
+        /// <param name="a">Vector to subtract from the scalar.</param>
+        /// <param name="b">Scalar to subtract from.</param>
         /// <returns>Vector with components equal the input vector subtracted from the input scalar.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3Wide operator -(Vector3Wide a, Vector<float> b)

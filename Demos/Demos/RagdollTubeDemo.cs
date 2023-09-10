@@ -5,7 +5,6 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using System;
 using DemoContentLoader;
-using Demos.Demos;
 using DemoUtilities;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
@@ -18,7 +17,7 @@ namespace Demos.Demos
     /// </summary>
     public class RagdollTubeDemo : Demo
     {
-        public unsafe override void Initialize(ContentArchive content, Camera camera)
+        public override void Initialize(ContentArchive content, Camera camera)
         {
             camera.Position = new Vector3(0, 9, -40);
             camera.Yaw = MathHelper.Pi;

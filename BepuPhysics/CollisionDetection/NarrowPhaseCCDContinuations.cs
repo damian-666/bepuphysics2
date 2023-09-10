@@ -1,15 +1,9 @@
 ﻿using BepuUtilities;
-using BepuUtilities.Collections;
 using BepuUtilities.Memory;
-using BepuPhysics.Collidables;
-using BepuPhysics.Constraints;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace BepuPhysics.CollisionDetection
 {
@@ -127,7 +121,7 @@ namespace BepuPhysics.CollisionDetection
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void OnPairCompleted<TManifold>(int pairId, ref TManifold manifoldReference) where TManifold : unmanaged, IContactManifold<TManifold>
+            public void OnPairCompleted<TManifold>(int pairId, ref TManifold manifoldReference) where TManifold : unmanaged, IContactManifold<TManifold>
             {
                 CCDContinuationIndex continuationId = new CCDContinuationIndex(pairId);
                 Debug.Assert(continuationId.Exists);
@@ -136,11 +130,11 @@ namespace BepuPhysics.CollisionDetection
                 //Check all contact data for invalid data early so that we don't end up spewing NaNs all over the engine and catching in the broad phase or some other highly indirect location.
                 for (int i = 0; i < manifoldReference.Count; ++i)
                 {
-                    manifoldReference.GetDepth(ref manifoldReference, i).Validate();
-                    ref var normal = ref manifoldReference.GetNormal(ref manifoldReference, i);
+                    manifoldReference.GetDepth(i).Validate();
+                    var normal = manifoldReference.GetNormal(i);
                     normal.Validate();
                     Debug.Assert(Math.Abs(normal.LengthSquared() - 1) < 1e-5f, "Normals should be unit length. Something's gone wrong!");
-                    manifoldReference.GetOffset(ref manifoldReference, i).Validate();
+                    manifoldReference.GetOffset(i).Validate();
                 }
 #endif
                 switch ((ConstraintGeneratorType)continuationId.Type)
@@ -216,7 +210,7 @@ namespace BepuPhysics.CollisionDetection
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void OnChildPairCompleted(int pairId, int childA, int childB, ref ConvexContactManifold manifold)
+            public void OnChildPairCompleted(int pairId, int childA, int childB, ref ConvexContactManifold manifold)
             {
                 var keepManifold = narrowPhase.Callbacks.ConfigureContactManifold(workerIndex, GetCollidablePair(pairId), childA, childB, ref manifold);
                 //This looks a little weird because it is. 

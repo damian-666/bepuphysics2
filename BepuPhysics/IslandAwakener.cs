@@ -3,12 +3,10 @@ using BepuUtilities;
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 
 namespace BepuPhysics
@@ -221,7 +219,7 @@ namespace BepuPhysics
         QuickList<int> uniqueSetIndices;
         QuickList<PhaseOneJob> phaseOneJobs;
         QuickList<PhaseTwoJob> phaseTwoJobs;
-        internal unsafe void ExecutePhaseOneJob(int index)
+        internal void ExecutePhaseOneJob(int index)
         {
             ref var job = ref phaseOneJobs[index];
             switch (job.Type)
@@ -325,7 +323,7 @@ namespace BepuPhysics
         }
 
 
-        internal unsafe void ExecutePhaseTwoJob(int index)
+        internal void ExecutePhaseTwoJob(int index)
         {
             ref var phaseTwoJob = ref phaseTwoJobs[index];
             switch (phaseTwoJob.Type)
@@ -472,7 +470,7 @@ namespace BepuPhysics
         }
 
 
-        unsafe internal (int phaseOneJobCount, int phaseTwoJobCount) PrepareJobs(ref QuickList<int> setIndices, bool resetActivityStates, int threadCount)
+        internal (int phaseOneJobCount, int phaseTwoJobCount) PrepareJobs(ref QuickList<int> setIndices, bool resetActivityStates, int threadCount)
         {
             if (setIndices.Count == 0)
                 return (0, 0);

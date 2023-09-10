@@ -3,10 +3,6 @@ using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using BepuPhysics;
 using System.Numerics;
-using System.Threading.Tasks;
-using System.Threading;
-using BepuUtilities;
-using BepuPhysics.CollisionDetection;
 using BepuPhysics.Trees;
 using System.Runtime.CompilerServices;
 
@@ -105,7 +101,7 @@ namespace DemoRenderer.Constraints
             }
         }
 
-        internal unsafe void CreateJobs(Simulation simulation, int simulationIndex, ref QuickList<LineInstance> lines, ref QuickList<ThreadJob> jobs, BufferPool pool)
+        internal void CreateJobs(Simulation simulation, int simulationIndex, ref QuickList<LineInstance> lines, ref QuickList<ThreadJob> jobs, BufferPool pool)
         {
             //For now, we only pull the bounding boxes of objects that are active.
             lines.EnsureCapacity(lines.Count + 12 * (simulation.BroadPhase.ActiveTree.LeafCount + simulation.BroadPhase.StaticTree.LeafCount), pool);

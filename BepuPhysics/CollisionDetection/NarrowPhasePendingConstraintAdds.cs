@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BepuUtilities;
-using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using System.Runtime.CompilerServices;
 using BepuUtilities.Memory;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using System.Threading;
-using BepuUtilities.Collections;
-using BepuPhysics.Constraints.Contact;
 
 namespace BepuPhysics.CollisionDetection
 {
@@ -23,7 +16,7 @@ namespace BepuPhysics.CollisionDetection
         {
             BufferPool pool;
             [StructLayout(LayoutKind.Sequential)]
-            unsafe struct PendingConstraint<TBodyHandles, TDescription, TContactImpulses> where TBodyHandles : unmanaged where TDescription : unmanaged, IConstraintDescription<TDescription>
+            struct PendingConstraint<TBodyHandles, TDescription, TContactImpulses> where TBodyHandles : unmanaged where TDescription : unmanaged, IConstraintDescription<TDescription>
             {
                 //Note the memory ordering. Collidable pair comes first; deterministic flushes rely the memory layout to sort pending constraints.
                 public CollidablePair Pair;
@@ -125,7 +118,7 @@ namespace BepuPhysics.CollisionDetection
                 Span<int> encodedBodyIndices = stackalloc int[handles.Length];
                 simulation.Solver.GetBlockingBodyHandles(handles, ref blockingBodyHandles, encodedBodyIndices);
                 while (!simulation.Solver.TryAllocateInBatch(
-                    default(TDescription).ConstraintTypeId, batchIndex,
+                    TDescription.ConstraintTypeId, batchIndex,
                     blockingBodyHandles, encodedBodyIndices, out constraintHandle, out reference))
                 {
                     //If a batch index failed, just try the next one. This is guaranteed to eventually work.
@@ -262,7 +255,7 @@ namespace BepuPhysics.CollisionDetection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe void AddConstraint<TBodyHandles, TDescription, TContactImpulses>(int workerIndex, int manifoldConstraintType, CollidablePair pair,
+        void AddConstraint<TBodyHandles, TDescription, TContactImpulses>(int workerIndex, int manifoldConstraintType, CollidablePair pair,
             PairCacheChangeIndex pairCacheChange, ref TContactImpulses impulses, TBodyHandles bodyHandles, ref TDescription constraintDescription)
             where TBodyHandles : unmanaged where TDescription : unmanaged, IConstraintDescription<TDescription>
         {

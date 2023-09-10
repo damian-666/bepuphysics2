@@ -3,8 +3,6 @@ using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -40,7 +38,7 @@ namespace BepuPhysics.Trees
             /// </summary>
             /// <param name="overlapHandlers">Callbacks used to handle individual overlaps detected by the self test.</param>
             /// <param name="threadCount">Number of threads to prepare jobs for.</param>
-            public unsafe void PrepareJobs(ref Tree treeA, ref Tree treeB, TOverlapHandler[] overlapHandlers, int threadCount)
+            public void PrepareJobs(ref Tree treeA, ref Tree treeB, TOverlapHandler[] overlapHandlers, int threadCount)
             {
                 if (treeA.LeafCount == 0 || treeB.LeafCount == 0)
                 {
@@ -50,7 +48,7 @@ namespace BepuPhysics.Trees
                     return;
                 }
                 Debug.Assert(overlapHandlers.Length >= threadCount);
-                const float jobMultiplier = 2.5f;
+                const float jobMultiplier = 8f;
                 var targetJobCount = Math.Max(1, jobMultiplier * threadCount);
                 //TODO: Not a lot of thought was put into this leaf threshold for intertree. Probably better options.
                 leafThreshold = (int)((treeA.LeafCount + treeB.LeafCount) / targetJobCount);
@@ -118,7 +116,7 @@ namespace BepuPhysics.Trees
                     jobs.Dispose(Pool);
             }
 
-            public unsafe void ExecuteJob(int jobIndex, int workerIndex)
+            public void ExecuteJob(int jobIndex, int workerIndex)
             {
                 ref var overlap = ref jobs[jobIndex];
                 if (overlap.A >= 0)
@@ -153,7 +151,7 @@ namespace BepuPhysics.Trees
             /// Executes a single worker of the multithreaded self test.
             /// </summary>
             /// <param name="workerIndex">Index of the worker executing this set of tests.</param>
-            public unsafe void PairTest(int workerIndex)
+            public void PairTest(int workerIndex)
             {
                 Debug.Assert(workerIndex >= 0 && workerIndex < OverlapHandlers.Length);
                 int nextNodePairIndex;
@@ -164,7 +162,7 @@ namespace BepuPhysics.Trees
                 }
             }
 
-            unsafe void DispatchTestForLeaf(ref Tree nodeOwner, int leafIndex, ref NodeChild leafChild, int nodeIndex, int nodeLeafCount, ref TOverlapHandler results)
+            void DispatchTestForLeaf(ref Tree nodeOwner, int leafIndex, ref NodeChild leafChild, int nodeIndex, int nodeLeafCount, ref TOverlapHandler results)
             {
                 if (nodeIndex < 0)
                 {
@@ -189,7 +187,7 @@ namespace BepuPhysics.Trees
                 }
             }
 
-            unsafe void TestLeafAgainstNode(ref Tree nodeOwner, int leafIndex, ref NodeChild leafChild, int nodeIndex, ref TOverlapHandler results)
+            void TestLeafAgainstNode(ref Tree nodeOwner, int leafIndex, ref NodeChild leafChild, int nodeIndex, ref TOverlapHandler results)
             {
                 ref var node = ref nodeOwner.Nodes[nodeIndex];
                 ref var a = ref node.A;
@@ -213,7 +211,7 @@ namespace BepuPhysics.Trees
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            unsafe void DispatchTestForNodes(ref NodeChild a, ref NodeChild b, ref TOverlapHandler results)
+            void DispatchTestForNodes(ref NodeChild a, ref NodeChild b, ref TOverlapHandler results)
             {
                 if (a.Index >= 0)
                 {
@@ -243,7 +241,7 @@ namespace BepuPhysics.Trees
                 }
             }
 
-            unsafe void GetJobsBetweenDifferentNodes(ref Node a, ref Node b, ref TOverlapHandler results)
+            void GetJobsBetweenDifferentNodes(ref Node a, ref Node b, ref TOverlapHandler results)
             {
                 //There are no shared children, so test them all.
 

@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using BepuUtilities.Memory;
 using System.Diagnostics;
 using BepuUtilities;
-using BepuUtilities.Collections;
 using BepuPhysics.Trees;
 using BepuPhysics.CollisionDetection.CollisionTasks;
 using System.Runtime.InteropServices;
@@ -153,7 +152,7 @@ namespace BepuPhysics.Collidables
 
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void TestLeaf(int leafIndex, RayData* rayData, float* maximumT)
+            public void TestLeaf(int leafIndex, RayData* rayData, float* maximumT)
             {
                 if (Handler.AllowTest(leafIndex))
                 {
@@ -203,7 +202,7 @@ namespace BepuPhysics.Collidables
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ShapeBatch CreateShapeBatch(BufferPool pool, int initialCapacity, Shapes shapes)
+        public static ShapeBatch CreateShapeBatch(BufferPool pool, int initialCapacity, Shapes shapes)
         {
             return new CompoundShapeBatch<BigCompound>(pool, initialCapacity, shapes);
         }
@@ -342,7 +341,7 @@ namespace BepuPhysics.Collidables
         /// Type id of compound shapes.
         /// </summary>
         public const int Id = 7;
-        public int TypeId { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return Id; } }
+        public static int TypeId { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return Id; } }
     }
 
 

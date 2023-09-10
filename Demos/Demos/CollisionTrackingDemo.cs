@@ -13,7 +13,6 @@ using BepuUtilities.Memory;
 using System.Runtime.CompilerServices;
 using BepuPhysics.Constraints;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Demos.Demos;
 
@@ -372,7 +371,7 @@ public class CollisionTrackingDemo : Demo
     /// Callbacks invoked by the simulation's narrow phase.
     /// In this demo, we'll collect all contact data associated with tracked objects for later processing.
     /// </summary>
-    public unsafe struct CollisionTrackingCallbacks : INarrowPhaseCallbacks
+    public struct CollisionTrackingCallbacks : INarrowPhaseCallbacks
     {
         CollisionTracker collisionTracker;
         public CollisionTrackingCallbacks(CollisionTracker collisionTracker)
@@ -393,7 +392,7 @@ public class CollisionTrackingDemo : Demo
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
+        public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
         {
             pairMaterial.FrictionCoefficient = 1f;
             pairMaterial.MaximumRecoveryVelocity = 2f;
@@ -471,7 +470,7 @@ public class CollisionTrackingDemo : Demo
     {
         for (int i = 0; i < pair.Contacts.Count; ++i)
         {
-            if (pair.Contacts.GetFeatureId(i) == featureId && pair.Contacts.GetDepth(ref pair.Contacts, i) >= 0)
+            if (pair.Contacts.GetFeatureId(i) == featureId && pair.Contacts.GetDepth(i) >= 0)
                 return true;
         }
         return false;
@@ -501,11 +500,11 @@ public class CollisionTrackingDemo : Demo
                     ref var previous = ref collisions.PreviousPairs.Values[otherIndexInPrevious];
                     for (int i = 0; i < pair.Contacts.Count; ++i)
                     {
-                        if (pair.Contacts.GetDepth(ref pair.Contacts, i) >= 0)
+                        if (pair.Contacts.GetDepth(i) >= 0)
                         {
                             //This contact is touching. Does there exist a contact with the same feature id that was touching in the previous timestep?
                             if (!PreviousContainsTouchingFeatureId(ref previous, pair.Contacts.GetFeatureId(i)))
-                                AddParticle(pair.Contacts.GetOffset(ref pair.Contacts, i), pair.Contacts.GetNormal(ref pair.Contacts, i), pair.OtherIsAInPair ? other.Collidable : self.Collidable);
+                                AddParticle(pair.Contacts.GetOffset(i), pair.Contacts.GetNormal(i), pair.OtherIsAInPair ? other.Collidable : self.Collidable);
                         }
                     }
                 }
@@ -514,7 +513,7 @@ public class CollisionTrackingDemo : Demo
                     //No previous collision, so all contacts are new.
                     for (int i = 0; i < pair.Contacts.Count; ++i)
                     {
-                        AddParticle(pair.Contacts.GetOffset(ref pair.Contacts, i), pair.Contacts.GetNormal(ref pair.Contacts, i), pair.OtherIsAInPair ? other.Collidable : self.Collidable);
+                        AddParticle(pair.Contacts.GetOffset(i), pair.Contacts.GetNormal(i), pair.OtherIsAInPair ? other.Collidable : self.Collidable);
                     }
                 }
             }

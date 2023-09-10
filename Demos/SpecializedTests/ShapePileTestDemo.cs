@@ -1,12 +1,9 @@
 ﻿using BepuUtilities;
 using DemoRenderer;
-using DemoUtilities;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using System;
 using System.Numerics;
-using System.Diagnostics;
-using BepuUtilities.Memory;
 using BepuUtilities.Collections;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
@@ -15,7 +12,7 @@ namespace Demos.SpecializedTests
 {
     public class ShapePileTestDemo : Demo
     {
-        public unsafe override void Initialize(ContentArchive content, Camera camera)
+        public override void Initialize(ContentArchive content, Camera camera)
         {
             camera.Position = new Vector3(-30, 10, -30);
             //camera.Yaw = MathHelper.Pi ; 

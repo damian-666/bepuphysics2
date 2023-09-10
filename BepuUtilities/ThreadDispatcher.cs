@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using BepuUtilities.Memory;
@@ -40,6 +39,8 @@ namespace BepuUtilities
         /// <param name="threadPoolBlockAllocationSize">Size of memory blocks to allocate for thread pools.</param>
         public ThreadDispatcher(int threadCount, int threadPoolBlockAllocationSize = 16384)
         {
+            if (threadCount <= 0)
+                throw new ArgumentOutOfRangeException(nameof(threadCount), "Thread count must be positive.");
             this.threadCount = threadCount;
             workers = new Worker[threadCount - 1];
             for (int i = 0; i < workers.Length; ++i)

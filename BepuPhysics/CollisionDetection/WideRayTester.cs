@@ -2,7 +2,6 @@
 using BepuPhysics.Trees;
 using BepuUtilities;
 using BepuUtilities.Memory;
-using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -33,7 +32,7 @@ namespace BepuPhysics.CollisionDetection
             for (int i = 0; i < raySource.RayCount; i += Vector<float>.Count)
             {
                 var count = raySource.RayCount - i;
-                if (count < wide.MinimumWideRayCount)
+                if (count < TShapeWide.MinimumWideRayCount)
                 {
                     for (int j = 0; j < count; ++j)
                     {

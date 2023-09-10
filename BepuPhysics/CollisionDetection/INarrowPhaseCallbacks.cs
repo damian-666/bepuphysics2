@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BepuUtilities;
-using BepuPhysics.Collidables;
+﻿using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 
 namespace BepuPhysics.CollisionDetection
@@ -43,7 +39,7 @@ namespace BepuPhysics.CollisionDetection
     /// <summary>
     /// Defines handlers for narrow phase events.
     /// </summary>
-    public unsafe interface INarrowPhaseCallbacks
+    public interface INarrowPhaseCallbacks
     {
         /// <summary>
         /// Performs any required initialization logic after the Simulation instance has been constructed.

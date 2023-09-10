@@ -4,7 +4,6 @@ using BepuPhysics.Constraints;
 using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
-using DemoRenderer.UI;
 using DemoUtilities;
 using System;
 using System.Numerics;
@@ -59,7 +58,7 @@ namespace Demos.SpecializedTests.Media
             return position;
         }
 
-        public unsafe override void Initialize(ContentArchive content, Camera camera)
+        public override void Initialize(ContentArchive content, Camera camera)
         {
             camera.Position = new Vector3(-30, 40, -30);
             camera.Yaw = MathHelper.Pi * 3f / 4;

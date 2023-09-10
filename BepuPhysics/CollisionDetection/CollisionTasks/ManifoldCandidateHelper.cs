@@ -1,10 +1,6 @@
 ﻿using BepuUtilities;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 using static BepuUtilities.GatherScatter;
 
 namespace BepuPhysics.CollisionDetection.CollisionTasks
@@ -287,7 +283,7 @@ namespace BepuPhysics.CollisionDetection.CollisionTasks
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe static void PlaceCandidateInSlot(in ManifoldCandidateScalar candidate, int contactIndex,
+        static void PlaceCandidateInSlot(in ManifoldCandidateScalar candidate, int contactIndex,
             Vector3 faceCenterB, Vector3 faceBX, Vector3 faceBY, float depth,
             in Matrix3x3 orientationB, Vector3 offsetB, ref Convex4ContactManifoldWide manifoldSlot)
         {

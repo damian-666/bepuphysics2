@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Threading;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BepuUtilities.Collections;
-using BepuUtilities.Memory;
 
 namespace Demos.Demos.Tanks
 {
@@ -116,7 +113,7 @@ namespace Demos.Demos.Tanks
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
+        public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
         {
             //Different tank parts have different friction values. Wheels tend to stick more than the body of the tank.
             ref var propertiesA = ref Properties[pair.A.BodyHandle];
@@ -143,7 +140,7 @@ namespace Demos.Demos.Tanks
                     //In most cases, this isn't a problem at all, but tank projectiles are moving very quickly and a single missed frame might be enough to not trigger an explosion.
                     //A nonzero epsilon helps catch those cases.
                     //(An alternative would be to check each projectile's contact constraints and cause an explosion if any contact has nonzero penetration impulse.)
-                    if (manifold.GetDepth(ref manifold, i) >= -1e-3f)
+                    if (manifold.GetDepth(i) >= -1e-3f)
                     {
                         //An actual collision was found. 
                         if (propertiesA.Projectile)
@@ -163,7 +160,7 @@ namespace Demos.Demos.Tanks
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe bool ConfigureContactManifold(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB, ref ConvexContactManifold manifold)
+        public bool ConfigureContactManifold(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB, ref ConvexContactManifold manifold)
         {
             return true;
         }
